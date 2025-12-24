@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="ttpr.client/ttpr.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="TTPR.Server/TTPR.Server.csproj" />
+</Solution>
