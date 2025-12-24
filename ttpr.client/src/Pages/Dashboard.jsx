@@ -3,6 +3,8 @@ import { fetchWithAuth } from "../fetchWithAuth";
 import Projects from "../Components/Projects";
 import Tasks from "../Components/Tasks";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function Dashboard() {
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -12,16 +14,16 @@ export default function Dashboard() {
     const [projectProgressMap, setProjectProgressMap] = useState({});
 
     const loadProjects = async () => {
-        const res = await fetchWithAuth("https://localhost:7290/api/projects");
+        const res = await fetchWithAuth(`${API_URL}/api/projects`);
         if (res.ok) {
             const data = await res.json();
             setProjects(data);
 
             const progressMap = {};
             await Promise.all(data.map(async (p) => {
-                const resProgress = await fetchWithAuth(`https://localhost:7290/api/projects/progress/${p.id}`);
+                const resProgress = await fetchWithAuth(`${API_URL}/api/projects/progress/${p.id}`);
                 if (resProgress.ok) {
-                    const progress = parseFloat(await resProgress.json());
+                    const progress = parseFloat((await resProgress.json()).message);
                     progressMap[p.id] = progress;
                 } else {
                     progressMap[p.id] = 0;
@@ -33,7 +35,7 @@ export default function Dashboard() {
 
     useEffect(() => {
         const init = async () => {
-            const authRes = await fetchWithAuth("https://localhost:7290/api/Auth");
+            const authRes = await fetchWithAuth(`${API_URL}/api/Auth`);
             if (!authRes.ok) {
                 setLoading(false);
                 return;

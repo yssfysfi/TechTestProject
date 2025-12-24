@@ -35,35 +35,63 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(8080);
+});
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowReactDev",
+//        policy => policy
+//            .WithOrigins("http://localhost:5173")
+//            .AllowAnyHeader()
+//            .AllowAnyMethod()
+//    );
+//});
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactDev",
-        policy => policy
-            .WithOrigins("http://localhost:5173")
-            .AllowAnyHeader()
+    options.AddPolicy("AllowDockerClient",
+        builder => builder
+            .WithOrigins("http://localhost:3000")
             .AllowAnyMethod()
-    );
+            .AllowAnyHeader());
 });
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    var dbExists = db.Database.CanConnect();
+    if (!dbExists)
+    {
+        db.Database.Migrate();
+    }
+}
+
+
 app.UseDefaultFiles();
 app.MapStaticAssets();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
 
-app.UseHttpsRedirection();
+app.Urls.Add("http://+:8080");
 
-app.UseCors("AllowReactDev");
+//app.UseCors("AllowReactDev");
+
+app.UseCors("AllowDockerClient");
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 

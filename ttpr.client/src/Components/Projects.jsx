@@ -2,6 +2,7 @@
 import { fetchWithAuth } from "../fetchWithAuth";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 
+const API_URL = import.meta.env.VITE_API_URL;
 const PAGE_SIZE = 6;
 
 export default function Projects({
@@ -43,7 +44,7 @@ export default function Projects({
     const handleCreateProject = async () => {
         if (!projectName.trim()) return;
 
-        const res = await fetchWithAuth("https://localhost:7290/api/projects", {
+        const res = await fetchWithAuth(`${API_URL}/api/projects`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -64,7 +65,7 @@ export default function Projects({
         if (!confirm("Delete this project?")) return;
 
         const res = await fetchWithAuth(
-            `https://localhost:7290/api/projects/${projectId}`,
+            `${API_URL}/api/projects/${projectId}`,
             {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
@@ -90,7 +91,7 @@ export default function Projects({
         if (!updateTitle.trim()) return;
 
         const res = await fetchWithAuth(
-            `https://localhost:7290/api/projects/${updatingProjectId}`,
+            `${API_URL}/api/projects/${updatingProjectId}`,
             {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },

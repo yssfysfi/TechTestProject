@@ -1,4 +1,4 @@
-@TTPR.Server_HostAddress = http://localhost:5000
+@TTPR.Server_HostAddress = Environment.GetEnvironmentVariable("TTPR_SERVER_HOST") ?? "http://localhost:5000";
 
 GET {{TTPR.Server_HostAddress}}/weatherforecast/
 Accept: application/json

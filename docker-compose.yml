@@ -1,0 +1,47 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: ttpr_db
+    environment:
+      SA_PASSWORD: "StrongPassword123!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - ttpr_network
+
+  server:
+    build:
+      context: ./ttpr.server
+      dockerfile: Dockerfile
+      args:
+        DOTNET_ENV: Production
+    container_name: ttpr_server
+    environment:
+      ConnectionStrings__AppDatabase: "Server=db,1433;Database=TTPdb;User Id=sa;Password=StrongPassword123!;TrustServerCertificate=True"
+      DOTNET_RUNNING_IN_CONTAINER: true
+      ASPNETCORE_ENVIRONMENT: Development
+    depends_on:
+      - db
+    ports:
+      - "5000:8080"
+    networks:
+      - ttpr_network
+
+  client:
+    build:
+      context: ./ttpr.client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "http://localhost:5000"
+    container_name: ttpr_client
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    networks:
+      - ttpr_network
+
+networks:
+  ttpr_network:
+    driver: bridge

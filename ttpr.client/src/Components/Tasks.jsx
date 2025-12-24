@@ -2,6 +2,7 @@
 import { fetchWithAuth } from "../fetchWithAuth";
 import { FiEdit, FiTrash2, FiCheck } from "react-icons/fi";
 
+const API_URL = import.meta.env.VITE_API_URL;
 const PAGE_SIZE = 7;
 
 export default function Tasks({ project, onBack }) {
@@ -27,7 +28,7 @@ export default function Tasks({ project, onBack }) {
 
     const loadTasks = async () => {
         setLoading(true);
-        const res = await fetchWithAuth(`https://localhost:7290/api/tasks/of/${project.id}`);
+        const res = await fetchWithAuth(`${API_URL}/api/tasks/of/${project.id}`);
         if (res.ok) setTasks(await res.json());
         else setTasks([]);
         setLoading(false);
@@ -35,10 +36,10 @@ export default function Tasks({ project, onBack }) {
     };
 
     const loadProjectProgress = async (projectId) => {
-        const res = await fetchWithAuth(`https://localhost:7290/api/projects/progress/${projectId}`);
+        const res = await fetchWithAuth(`${API_URL}/api/projects/progress/${projectId}`);
         if (!res.ok) return;
         const data = await res.json();
-        setProjectProgress(parseFloat(data));
+        setProjectProgress(parseFloat(data.message));
     };
 
     useEffect(() => {
@@ -51,7 +52,7 @@ export default function Tasks({ project, onBack }) {
 
     const handleCreateTask = async () => {
         if (!taskTitle.trim()) return;
-        const res = await fetchWithAuth("https://localhost:7290/api/tasks", {
+        const res = await fetchWithAuth(`${API_URL}/api/tasks`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -78,7 +79,7 @@ export default function Tasks({ project, onBack }) {
 
     const handleUpdateTask = async () => {
         if (!updateTitle.trim()) return;
-        const res = await fetchWithAuth(`https://localhost:7290/api/tasks/${updatingTaskId}`, {
+        const res = await fetchWithAuth(`${API_URL}/api/tasks/${updatingTaskId}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -95,7 +96,7 @@ export default function Tasks({ project, onBack }) {
 
     const handleDeleteTask = async (taskId) => {
         if (!confirm("Delete this task?")) return;
-        const res = await fetchWithAuth(`https://localhost:7290/api/tasks/${taskId}`, {
+        const res = await fetchWithAuth(`${API_URL}/api/tasks/${taskId}`, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ TaskId: taskId })
@@ -105,7 +106,7 @@ export default function Tasks({ project, onBack }) {
     };
 
     const toggleTaskStatus = async (taskId, currentStatus) => {
-        const res = await fetchWithAuth(`https://localhost:7290/api/tasks/${taskId}/status`, {
+        const res = await fetchWithAuth(`${API_URL}/api/tasks/${taskId}/status`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ IsFinished: !currentStatus })
